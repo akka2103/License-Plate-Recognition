@@ -1,0 +1,3 @@
+/home/akash/Desktop/License-Plate-Recognition/client/CMakeFiles/rebuild_cache.dir
+/home/akash/Desktop/License-Plate-Recognition/client/CMakeFiles/edit_cache.dir
+/home/akash/Desktop/License-Plate-Recognition/client/CMakeFiles/main.dir
