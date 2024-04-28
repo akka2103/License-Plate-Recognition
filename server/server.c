@@ -42,12 +42,11 @@ void signal_handler(int sig)
 		syslog(LOG_INFO,"Caught SIGTERM");
 	}
 	
-	/* Close socket and client connection */
+	// Close socket and client connection 
 	close(socket_fd);
 	close(client_fd);
 	syslog(LOG_ERR,"Connection ended with %s",inet_ntoa(client_addr.sin_addr));
 	printf("Connection ended with %s\n",inet_ntoa(client_addr.sin_addr));
-	/* Exit success */
 	exit(0); 
 }
 
@@ -69,7 +68,7 @@ int main()
     init_device();
     start_capturing();
 
-    /* initialise the signal handler */
+    //initialise the signal handler 
 	if(SIG_ERR == signal(SIGINT,signal_handler))
 	{
 		syslog(LOG_ERR,"SIGINT failed");
@@ -83,7 +82,7 @@ int main()
 
     // start server socket
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(-1 == socket_fd)
+    if(socket_fd == -1)
     {
 		syslog(LOG_ERR, "Failed to create server socket");
 		printf("Failed to create server socket\n");
@@ -100,38 +99,44 @@ int main()
 		exit(-1);        
     }
     sockopt_r = setsockopt(socket_fd,SOL_SOCKET,SO_REUSEADDR,&num,sizeof(num));
-    if(-1 == sockopt_r)
+    if(sockopt_r == -1)
     {
 		syslog(LOG_ERR, "setsockopt call failed");
-		printf("setsockopt call failed");
+		printf("setsockopt call failed\n");
 		exit(-1);        
     }
-
+    
+    //bind
     bind_r = bind(socket_fd,server_info->ai_addr,sizeof(struct sockaddr));
-    if(-1 == bind_r)
+    if(bind_r == -1)
 	{
 		freeaddrinfo(server_info); 
 		syslog(LOG_ERR, "bind call failed");
+		printf("bind call failed\n");
 		exit(-1);
 	}
 
     freeaddrinfo(server_info); 
-
-    listen_r=listen(socket_fd,1); 
-	if(-1 == listen_r)
+    
+    //listen 
+    listen_r = listen(socket_fd,1); 
+	if(listen_r == -1)
 	{
 		syslog(LOG_ERR, "listen call failed");
+		printf("listen call failed\n");
 		exit(-1);
 	}
 while(1)
 {
 	retryflag=0;
 	printf("Accepting.......\n");
+	//accept
         client_fd = accept(socket_fd,(struct sockaddr *)&client_addr,&size);
 	printf("connection successfully accepected\n");
 	if(-1 == client_fd)
 	{
 		syslog(LOG_ERR, "Failed to accept the connection");
+		printf("Failed to accept the connection\n");
 		exit(-1);
 	}
     else
@@ -149,7 +154,7 @@ while(1)
                 unsigned char *img_buffer;
 		img_buffer = mainloop();   //returns the image buffer (big buffer)
 		bytes_sent = send(client_fd,img_buffer,((614400*6)/4),0);
-		if(-1 == bytes_sent)
+		if(bytes_sent == -1)
 		{
 			printf("Try accepting a new connection \n");;
 			retryflag=1;
